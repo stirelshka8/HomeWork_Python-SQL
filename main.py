@@ -24,6 +24,7 @@ NAME=None
 USER=None
 PASSWORD=None
 HOST=None""")
+
         print("Был создан конфигурационный файл базы данных (configuration.ini). Откройте его и настройте параметры подключения!")
 
 if __name__ == "__main__":
