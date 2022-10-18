@@ -1,10 +1,14 @@
-import psycopg2, configparser, os
+import psycopg2
+import configparser
+import os
 
 os.system("clear")
 
+configpath = "configuration.ini"
+config = configparser.ConfigParser()
+config.read(configpath)
+
 def performance():
-    config = configparser.ConfigParser()
-    config.read("configuration.ini")
     namedb = config["DATABASE"]["NAME"]
     userdb = config["DATABASE"]["USER"]
     passdb = config["DATABASE"]["PASSWORD"]
@@ -13,19 +17,23 @@ def performance():
     print(namedb, userdb,passdb,hostdb)
 
 def start_programm():
-    if os.path.exists("configuration.ini") == True:
+    if os.path.exists(configpath) == True:
         performance()
     else:
-        file_path = open("configuration.ini", "w+")
-        file_path.write("""#Файл конфигурации подключения к базе данных PostgreSQL!
+        config.add_section("DATABASE")
+        add_dbname = input("[!]Введите имя базы данных - ")
+        add_dbuser = input("[!]Введите имя пользователя базы данных - ")
+        add_dbpass = input("[!]Введите пароль базы данных - ")
+        add_dbhost = input("[!]Введите адрес хоста базы данных - ")
 
-[DATABASE]
-NAME=None
-USER=None
-PASSWORD=None
-HOST=None""")
+        config.set("DATABASE","NAME", add_dbname)
+        config.set("DATABASE","USER", add_dbuser)
+        config.set("DATABASE","PASSWORD", add_dbpass)
+        config.set("DATABASE","HOST", add_dbhost)
 
-        print("Был создан конфигурационный файл базы данных (configuration.ini). Откройте его и настройте параметры подключения!")
+
+        with open(configpath, "w") as config_file:
+            config.write(config_file)
 
 if __name__ == "__main__":
     start_programm()
