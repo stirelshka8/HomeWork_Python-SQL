@@ -8,6 +8,14 @@ configpath = "configuration.ini"
 config = configparser.ConfigParser()
 config.read(configpath)
 
+#ЦВЕТНОЙ ТЕКСТ
+
+def cprint_upred(text):
+    print("\033[1m\033[31m{}\033[0m".format(text))
+def cprint_yellow(text):
+    print("\033[33m{}\033[0m".format(text))
+
+
 def performance():
     namedb = config["DATABASE"]["NAME"]
     userdb = config["DATABASE"]["USER"]
@@ -18,7 +26,7 @@ def performance():
 
 def start_programm():
     if os.path.exists(configpath) == True:
-        print(f"[INFO] Программа запущена!.")
+        cprint_yellow(f"[INFO] Программа запущена!\n\n")
         performance()
     else:
         config.add_section("DATABASE")
@@ -34,12 +42,15 @@ def start_programm():
         config.set("DATABASE","HOST", add_dbhost)
         config.set("DATABASE","PORT", add_dbport)
 
+        config.add_section("INSTALLATIONS")
+        config.set("INSTALLATIONS","CHECK", "True")
+
         with open(configpath, "w") as config_file:
             config.write(config_file)
 
         os.system("clear")
-        print(f"[INFO] Файл конфигурации {configpath} создан.")
-        print(f"[INFO] Программа запущена!.")
+        cprint_yellow(f"[INFO] Файл конфигурации {configpath} создан.")
+        cprint_yellow(f"[INFO] Программа запущена!\n\n")
         performance()
 
 if __name__ == "__main__":
