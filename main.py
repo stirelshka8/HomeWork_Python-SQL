@@ -1,12 +1,15 @@
 import psycopg2
 import configparser
 import os
+import re
 
 os.system("clear")
 
 configpath = "configuration.ini"
 config = configparser.ConfigParser()
 config.read(configpath)
+phonere = re.compile(r'/[+]\d[(]\d{3}[)]\d{3}[-]\d{2}[-]\d{2}/gm')
+emailre = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
 
 #ЦВЕТНОЙ ТЕКСТ
 
@@ -14,6 +17,8 @@ def cprint_upred(text):
     print("\033[1m\033[31m{}\033[0m".format(text))
 def cprint_yellow(text):
     print("\033[33m{}\033[0m".format(text))
+def cprint_blue(text):
+    print("\033[34m{}\033[0m".format(text))
 
 
 def performance():
@@ -22,6 +27,19 @@ def performance():
     passdb = config["DATABASE"]["PASSWORD"]
     hostdb = config["DATABASE"]["HOST"]
     portdb = config["DATABASE"]["PORT"]
+
+    cprint_blue("""
+Параметры работы
+
+1 - Добавить нового клиента
+2 - Добавить номер телефона для записи клиента
+3 - Изменит данные клиента в базе
+4 - Удалить телефон клиента в базе
+5 - Удалить клиента из базы
+6 - Поиск клиента в базе
+EXT - Завершить работу программы\n""")
+
+    selection = input("Введите параметр - ")
 
 
 def start_programm():
