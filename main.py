@@ -39,7 +39,7 @@ def performance():
 6 - Поиск клиента в базе
 EXT - Завершить работу программы\n""")
 
-    selection = input("Введите параметр - ")
+    selection = input("[WORK]Введите параметр - ")
 
 
 def start_programm():
