@@ -37,10 +37,30 @@ def performance():
 4 - Удалить телефон клиента в базе
 5 - Удалить клиента из базы
 6 - Поиск клиента в базе
-EXT - Завершить работу программы\n""")
+0 - Завершить работу программы\n""")
 
-    selection = input("[WORK]Введите параметр - ")
+    selection = int(input("[WORK]Введите параметр - "))
 
+    if selection == 0:
+        quit
+    elif selection == 1 and selection <= 6:
+        cprint_upred("Один")
+    elif selection == 2 and selection <= 6:
+        cprint_upred("Два")
+    elif selection == 3 and selection <= 6:
+        cprint_upred("Три")
+    elif selection == 4 and selection <= 6:
+        cprint_upred("Четыре")
+    elif selection == 5 and selection <= 6:
+        cprint_upred("Пять")
+    elif selection == 6 and selection <= 6:
+        cprint_upred("Шесть")
+
+    def create_db():
+        
+
+
+    
 
 def start_programm():
     if os.path.exists(configpath) == True:
