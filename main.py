@@ -1,14 +1,10 @@
 import psycopg2
-import configparser
 import os
 import re
 
 os.system("clear")
 
-configpath = "configuration.ini"
-config = configparser.ConfigParser()
-config.read(configpath)
-phonere = re.compile(r'/[+]\d[(]\d{3}[)]\d{3}[-]\d{2}[-]\d{2}/gm')
+phonere = re.compile(r'[+]\d\d{10}')
 emailre = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
 
 #ЦВЕТНОЙ ТЕКСТ
@@ -22,12 +18,6 @@ def cprint_blue(text):
 
 
 def performance():
-    namedb = config["DATABASE"]["NAME"]
-    userdb = config["DATABASE"]["USER"]
-    passdb = config["DATABASE"]["PASSWORD"]
-    hostdb = config["DATABASE"]["HOST"]
-    portdb = config["DATABASE"]["PORT"]
-
     cprint_blue("""
 Параметры работы
 
@@ -40,11 +30,11 @@ def performance():
 0 - Завершить работу программы\n""")
 
     selection = int(input("[WORK]Введите параметр - "))
-
+    
     if selection == 0:
-        quit
+        quit()
     elif selection == 1 and selection <= 6:
-        cprint_upred("Один")
+        Working_Database.add_client()
     elif selection == 2 and selection <= 6:
         cprint_upred("Два")
     elif selection == 3 and selection <= 6:
@@ -56,40 +46,73 @@ def performance():
     elif selection == 6 and selection <= 6:
         cprint_upred("Шесть")
 
-    def create_db():
-        
+def create_tab(cursor):
+        cursor.execute("""
+                CREATE TABLE IF NOT EXISTS client(
+                    id_client SERIAL PRIMARY KEY,
+                    firstname_client TEXT NOT NULL,
+                    lastname_client TEXT NOT NULL
+                ); 
+                """)
+        cursor.execute("""
+               CREATE TABLE IF NOT EXISTS email(
+                    id_email SERIAL PRIMARY KEY,
+                    id_client INTEGER REFERENCES client (id_client),
+                    name_email TEXT
+               ); 
+               """)
+        cursor.execute("""
+               CREATE TABLE IF NOT EXISTS phone(
+                    id_phone SERIAL PRIMARY KEY,
+                    id_client INTEGER REFERENCES client (id_client),                    
+                    number_phone TEXT
+                ); 
+                """)
 
+def first_name():
+    input_first_name = input ('Введите имя клиента: ').title()
+    return input_first_name
 
-    
+def last_name():
+    input_last_name = input ('Введите фамилию клиента: ').title()
+    return input_last_name
 
-def start_programm():
-    if os.path.exists(configpath) == True:
-        cprint_yellow(f"[INFO] Программа запущена!\n\n")
-        performance()
-    else:
-        config.add_section("DATABASE")
-        add_dbname = input("[SET]Введите имя базы данных - ")
-        add_dbuser = input("[SET]Введите имя пользователя базы данных - ")
-        add_dbpass = input("[SET]Введите пароль базы данных - ")
-        add_dbhost = input("[SET]Введите адрес хоста базы данных - ")
-        add_dbport = input("[SET]Введите номер порта базы данных (по умолчанию - 5432) - ")
+def email():
+     input_email = input ('Введите E-Mail клиента в формате email@example.com: ')
+     while re.fullmatch(emailre, input_email) == None:
+         cprint_upred("Введенный E-Mail не соответствует установленному формату!")
+         input_email = input ('Введите E-Mail клиента в формате email@example.com: ')
+     return input_email
 
-        config.set("DATABASE","NAME", add_dbname)
-        config.set("DATABASE","USER", add_dbuser)
-        config.set("DATABASE","PASSWORD", add_dbpass)
-        config.set("DATABASE","HOST", add_dbhost)
-        config.set("DATABASE","PORT", add_dbport)
+def phone():
+    input_phone = input ('Введите номер телефона клиента в формате +79992271102: ')
+    while re.fullmatch(phonere, input_phone) == None:
+        print("Введенный номер телефона не соответствует установленному формату!")
+        input_phone = input ('Введите номер телефона клиента в формате +79992271102: ')
+    return input_phone
 
-        config.add_section("INSTALLATIONS")
-        config.set("INSTALLATIONS","CHECK", "True")
+class Working_Database():
+    def __init__(self) -> None:
+        pass
 
-        with open(configpath, "w") as config_file:
-            config.write(config_file)
+    def add_client():
+        work_first_name = first_name()
+        work_last_neme = last_name()
+        work_email = email()
+        work_phone = phone()
+        cursor.execute ("""INSERT INTO client(firstname_client, lastname_client) VALUES (%s, %s)""", (work_first_name, work_last_neme))
+        conn.commit()
+        cursor.execute(""" SELECT id_client FROM client WHERE firstname_client = %s AND lastname_client = %s""",(work_first_name, work_last_neme))
+        work_exec = cursor.fetchall()
+        data_id_client = str(work_exec[0][0])
+        cursor.execute ("""INSERT INTO email(id_client, name_email) VALUES (%s, %s)""", (data_id_client, work_email))
+        conn.commit()
+        cursor.execute ("""INSERT INTO phone(id_client, number_phone) VALUES (%s, %s)""", (data_id_client, work_phone))
+        conn.commit()
 
-        os.system("clear")
-        cprint_yellow(f"[INFO] Файл конфигурации {configpath} создан.")
-        cprint_yellow(f"[INFO] Программа запущена!\n\n")
-        performance()
 
 if __name__ == "__main__":
-    start_programm()
+    with psycopg2.connect(database="client_db", user="postgres", password="7702293", host="192.168.1.111") as conn:
+        with conn.cursor() as cursor:
+            create_tab(cursor)
+            performance()
