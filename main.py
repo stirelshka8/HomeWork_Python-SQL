@@ -1,8 +1,15 @@
+import configparser
 import psycopg2
 import os
 import re
 
 os.system("clear")
+
+# ФАЙЛ КОНФИГУРЦИИ
+
+configpath = "configuration.conf"
+config = configparser.ConfigParser()
+config.read(configpath)
 
 # РЕГУЛЯРНЫЕ ВЫРАЖЕНИЯ
 phonere = re.compile(r'[+]\d\d{10}')
@@ -18,7 +25,7 @@ def cprint_blue(text):
     print("\033[34m{}\033[0m".format(text))
 
 # ФУНКЦИЯ ЗАПУСКА ПРОГРАММЫ
-def performance():
+def performance(cursor, conn):
     cprint_blue("""
 Параметры работы
 
@@ -35,17 +42,17 @@ def performance():
     if selection == 0:
         quit()
     elif selection == 1 and selection <= 6:
-        Working_Database.add_client()
+        Working_Database.add_client(cursor, conn)
     elif selection == 2 and selection <= 6:
-        Working_Database.add_phone()
+        Working_Database.add_phone(cursor, conn)
     elif selection == 3 and selection <= 6:
-        Working_Database.edit_client()
+        Working_Database.edit_client(cursor, conn)
     elif selection == 4 and selection <= 6:
-        Working_Database.del_phone()
+        Working_Database.del_phone(cursor, conn)
     elif selection == 5 and selection <= 6:
-        Working_Database.del_client()
+        Working_Database.del_client(cursor, conn)
     elif selection == 6 and selection <= 6:
-        Working_Database.search_client()
+        Working_Database.search_client(cursor, conn)
 
 def create_tab(cursor):
         cursor.execute("""
@@ -93,10 +100,11 @@ def phone():
     return input_phone
 
 class Working_Database():
-    def __init__(self) -> None:
+    def __init__():
         pass
 
-    def add_client():
+    def add_client(cursor, conn):
+
         work_first_name = first_name()
         work_last_neme = last_name()
         work_email = email()
@@ -112,7 +120,7 @@ class Working_Database():
         conn.commit()
         cprint_blue(f"Клиент {work_first_name} {work_last_neme} в базу успешно добавлен!")
     
-    def add_phone():
+    def add_phone(cursor, conn):
         work_first_name = first_name()
         work_last_neme = last_name()
         cursor.execute(""" SELECT id_client, firstname_client, lastname_client FROM client WHERE firstname_client = %s AND lastname_client = %s""",(work_first_name, work_last_neme))
@@ -128,7 +136,7 @@ class Working_Database():
             conn.commit()
             cprint_blue(f"Новый номер телефона клиента {work_exec[0][1]} {work_exec[0][2]} в базу успешно добавлен!")
 
-    def edit_client():
+    def edit_client(cursor, conn):
         cprint_yellow("Введите Имя и Фамилию клиента запись которого хотим отредактировать")
         work_first_name = first_name()
         work_last_neme = last_name()
@@ -156,7 +164,7 @@ class Working_Database():
             elif input_edit == 0:
                 pass
 
-    def edit_client_name(data_id_client, edit_firstname, edit_lastname):
+    def edit_client_name(data_id_client, edit_firstname, edit_lastname, cursor, conn):
         cprint_yellow(f"У клиента в данный момент имя {edit_firstname}. ДА если будите редактировать.")
         edit_check = input("Введите ").upper()
         if edit_check == "ДА":
@@ -171,7 +179,7 @@ class Working_Database():
             conn.commit()
         cprint_blue(f"Данные клиента отредактированны")
 
-    def edit_client_phone(data_id_client, edit_firstname, edit_lastname):
+    def edit_client_phone(data_id_client, edit_firstname, edit_lastname, cursor, conn):
         print(f'В данный момент у клиента {edit_firstname} {edit_lastname} существуют записи о следующих номерах телефонов:\n')   
         cursor.execute(""" SELECT id_phone, number_phone FROM phone WHERE id_client = %s""",(str(data_id_client))) 
         work_exec = cursor.fetchall()
@@ -189,7 +197,7 @@ class Working_Database():
             conn.commit()
             cprint_blue(f"Данные клиента отредактированны")
     
-    def edit_client_email(data_id_client, edit_firstname, edit_lastname):
+    def edit_client_email(data_id_client, edit_firstname, edit_lastname, cursor, conn):
         print(f'В данный момент у клиента {edit_firstname} {edit_lastname} существуют записи о следующих E-Mail адресах:\n')   
         cursor.execute("""SELECT id_email, name_email FROM email WHERE id_client = %s""",(str(data_id_client))) 
         work_exec = cursor.fetchall()
@@ -207,7 +215,7 @@ class Working_Database():
             conn.commit()
             cprint_blue(f"Данные клиента отредактированны")
     
-    def del_phone():
+    def del_phone(cursor, conn):
         cprint_yellow("Введите Имя и Фамилию клиента запись которого хотте отредактировать")
         work_first_name = first_name()
         work_last_neme = last_name()
@@ -220,7 +228,7 @@ class Working_Database():
             cursor.execute(""" DELETE FROM phone WHERE id_client = %s""",(dara_id_client))
             cprint_blue(f"Данные клиента отредактированны")
 
-    def del_client():
+    def del_client(cursor, conn):
         cprint_yellow("Введите Имя и Фамилию клиента запись которого хотите удалить")
         work_first_name = first_name()
         work_last_neme = last_name()
@@ -235,7 +243,7 @@ class Working_Database():
             cursor.execute(""" DELETE FROM client WHERE id_client = %s""",(dara_id_client))
             cprint_blue(f"Данные клиента удалены")
 
-    def search_client():
+    def search_client(cursor, conn):
         work_first_name = first_name()
         work_last_neme = last_name()
         cursor.execute(""" SELECT id_client, firstname_client, lastname_client FROM client WHERE firstname_client = %s AND lastname_client = %s""",(work_first_name, work_last_neme))
@@ -250,9 +258,53 @@ class Working_Database():
             work_exec_phone = cursor.fetchall()
             cprint_blue(f"Данные которые удалось найти : {work_exec} {work_exec_phone} {work_exec_email}")
 
+def STARTUPDB():
+    namedb = config["DATABASE"]["NAME"]
+    userdb = config["DATABASE"]["USER"]
+    passdb = config["DATABASE"]["PASSWORD"]
+    hostdb = config["DATABASE"]["HOST"]
+    portdb = config["DATABASE"]["PORT"]
 
-if __name__ == "__main__":
-    with psycopg2.connect(database="0000000", user="0000000", password="0000000", host="0000000") as conn:
+    with psycopg2.connect(database=namedb, user=userdb, password=passdb, host=hostdb,port=portdb) as conn:
         with conn.cursor() as cursor:
             create_tab(cursor)
-            performance()
+            performance(cursor, conn)
+
+
+def start_programm():
+    if os.path.exists(configpath) == True:
+        cprint_yellow(f"[INFO] Программа запущена!\n\n")
+        STARTUPDB()
+    else:
+        cprint_upred("""По всей вероятности это первый запуск программы. 
+Для корректной работы необходимо настроить некоторые параметры, данное действие необходимо сделать однократно.
+
+Приступим!
+""")
+        config.add_section("DATABASE")
+        add_dbname = input("[SET]Введите имя базы данных - ")
+        add_dbuser = input("[SET]Введите имя пользователя базы данных - ")
+        add_dbpass = input("[SET]Введите пароль базы данных - ")
+        add_dbhost = input("[SET]Введите адрес хоста базы данных - ")
+        add_dbport = input("[SET]Введите номер порта базы данных (по умолчанию - 5432) - ")
+
+        config.set("DATABASE","NAME", add_dbname)
+        config.set("DATABASE","USER", add_dbuser)
+        config.set("DATABASE","PASSWORD", add_dbpass)
+        config.set("DATABASE","HOST", add_dbhost)
+        config.set("DATABASE","PORT", add_dbport)
+
+        config.add_section("INSTALLATIONS")
+        config.set("INSTALLATIONS","CHECK", "True")
+
+        with open(configpath, "w") as config_file:
+            config.write(config_file)
+
+        os.system("clear")
+        cprint_yellow(f"[INFO] Файл конфигурации {configpath} создан.")
+        cprint_yellow(f"[INFO] Программа запущена!\n\n")
+        STARTUPDB()
+
+
+if __name__ == "__main__":
+    start_programm()
