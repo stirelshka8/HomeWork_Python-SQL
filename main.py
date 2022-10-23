@@ -104,7 +104,8 @@ class Working_Database():
         pass
 
     def add_client(cursor, conn):
-
+        os.system("clear")
+        cprint_yellow("Выбран параметр добавления нового киента!\n")
         work_first_name = first_name()
         work_last_neme = last_name()
         work_email = email()
@@ -121,13 +122,15 @@ class Working_Database():
         cprint_blue(f"Клиент {work_first_name} {work_last_neme} в базу успешно добавлен!")
     
     def add_phone(cursor, conn):
+        os.system("clear")
+        cprint_yellow("Выбран параметр добавления номера телфона клиенту!\n")
         work_first_name = first_name()
         work_last_neme = last_name()
         cursor.execute(""" SELECT id_client, firstname_client, lastname_client FROM client WHERE firstname_client = %s AND lastname_client = %s""",(work_first_name, work_last_neme))
         work_exec = cursor.fetchall()
         #print(work_exec)
-        cprint_upred(f"В запись клиента {work_exec[0][1]} {work_exec[0][2]} добавим новый номер телефона? ДА если все верно")
-        work_switch = input("Введите ").upper()
+        cprint_upred(f"В запись клиента {work_exec[0][1]} {work_exec[0][2]} добавим новый номер телефона?")
+        work_switch = input("Введите ДА для продолжения").upper()
         if work_switch == "ДА":
             #print(work_exec)
             data_id_client = str(work_exec[0][0])
@@ -137,6 +140,8 @@ class Working_Database():
             cprint_blue(f"Новый номер телефона клиента {work_exec[0][1]} {work_exec[0][2]} в базу успешно добавлен!")
 
     def edit_client(cursor, conn):
+        cprint_yellow("Выбран параметр радактирования записа киента!\n")
+        os.system("clear")
         cprint_yellow("Введите Имя и Фамилию клиента запись которого хотим отредактировать")
         work_first_name = first_name()
         work_last_neme = last_name()
@@ -165,14 +170,15 @@ class Working_Database():
                 pass
 
     def edit_client_name(data_id_client, edit_firstname, edit_lastname, cursor, conn):
+        os.system("clear")
         cprint_yellow(f"У клиента в данный момент имя {edit_firstname}. ДА если будите редактировать.")
         edit_check = input("Введите ").upper()
         if edit_check == "ДА":
             work_first_name = first_name()
             cursor.execute ("""UPDATE client SET firstname_client = %s WHERE id_client = %s""", (work_first_name, data_id_client))
             conn.commit()
-        cprint_yellow(f"У клиента в данный момент фамилия {edit_lastname}. ДА если будите редактировать.")
-        edit_check = input("Введите ").upper()
+        cprint_yellow(f"У клиента в данный момент фамилия {edit_lastname}.")
+        edit_check = input("Введите ДА для продолжения редактирования").upper()
         if edit_check == "ДА":
             work_last_neme = last_name()
             cursor.execute ("""UPDATE client SET lastname_client = %s WHERE id_client = %s""", (work_last_neme, data_id_client))
@@ -180,12 +186,13 @@ class Working_Database():
         cprint_blue(f"Данные клиента отредактированны")
 
     def edit_client_phone(data_id_client, edit_firstname, edit_lastname, cursor, conn):
+        os.system("clear")
         print(f'В данный момент у клиента {edit_firstname} {edit_lastname} существуют записи о следующих номерах телефонов:\n')   
         cursor.execute(""" SELECT id_phone, number_phone FROM phone WHERE id_client = %s""",(str(data_id_client))) 
         work_exec = cursor.fetchall()
         cprint_yellow(work_exec)
         cprint_upred("Редактировать?")
-        edit_check = input("Введите ").upper()
+        edit_check = input("Введите ДА для продолжения").upper()
         if edit_check == "ДА":
             cprint_yellow("Введите номер телефона который необходимо отредактировать: ")
             edit_phone_check = phone()
@@ -198,12 +205,13 @@ class Working_Database():
             cprint_blue(f"Данные клиента отредактированны")
     
     def edit_client_email(data_id_client, edit_firstname, edit_lastname, cursor, conn):
+        os.system("clear")
         print(f'В данный момент у клиента {edit_firstname} {edit_lastname} существуют записи о следующих E-Mail адресах:\n')   
         cursor.execute("""SELECT id_email, name_email FROM email WHERE id_client = %s""",(str(data_id_client))) 
         work_exec = cursor.fetchall()
         cprint_yellow(work_exec)
         cprint_upred("Редактировать?")
-        edit_check = input("Введите ").upper()
+        edit_check = input("Введите ДА для продолжения").upper()
         if edit_check == "ДА":
             cprint_yellow("Введите E-Mail адрес который необходимо отредактировать: ")
             edit_email_check = email()
@@ -216,6 +224,8 @@ class Working_Database():
             cprint_blue(f"Данные клиента отредактированны")
     
     def del_phone(cursor, conn):
+        cprint_yellow("Выбран параметр редактирования номера телефона киента!\n")
+        os.system("clear")
         cprint_yellow("Введите Имя и Фамилию клиента запись которого хотте отредактировать")
         work_first_name = first_name()
         work_last_neme = last_name()
@@ -229,6 +239,8 @@ class Working_Database():
             cprint_blue(f"Данные клиента отредактированны")
 
     def del_client(cursor, conn):
+        cprint_yellow("Выбран параметр удаления киента!\n")
+        os.system("clear")
         cprint_yellow("Введите Имя и Фамилию клиента запись которого хотите удалить")
         work_first_name = first_name()
         work_last_neme = last_name()
@@ -244,6 +256,8 @@ class Working_Database():
             cprint_blue(f"Данные клиента удалены")
 
     def search_client(cursor, conn):
+        cprint_yellow("Выбран параметр поиска киента!\n")
+        os.system("clear")
         work_first_name = first_name()
         work_last_neme = last_name()
         cursor.execute(""" SELECT id_client, firstname_client, lastname_client FROM client WHERE firstname_client = %s AND lastname_client = %s""",(work_first_name, work_last_neme))
